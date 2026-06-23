@@ -1,11 +1,12 @@
+# app/config.py
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    database_url: str
-    redis_url: str = "redis://localhost:6379"
-    secret_key: str
-    stripe_secret_key: str
-    access_token_expire_minutes: int = 30
+    db_host: str = "localhost"
+    db_port: int = 5432
+    db_name: str = "ecommerce"
+    db_user: str = "postgres"
+    db_password: str
 
     class Config:
         env_file = ".env"
