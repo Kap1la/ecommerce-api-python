@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS purchase_orders (
 
 CREATE TABLE IF NOT EXISTS purchase_order_items (
     id              SERIAL PRIMARY KEY,
-    order_id        INTEGER             NOT NULL REFERENCES purchase_orders(id) ON DELETE CASCADE,
+    purchase_order_id        INTEGER             NOT NULL REFERENCES purchase_orders(id) ON DELETE CASCADE,
     product_id      INTEGER             NOT NULL REFERENCES products(id),
     quantity        INTEGER             NOT NULL CHECK (quantity > 0),
     unit_price      NUMERIC(10, 2)      NOT NULL CHECK (unit_price >= 0)
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS restock_orders (
 
 CREATE TABLE IF NOT EXISTS restock_order_items (
     id              SERIAL PRIMARY KEY,
-    order_id        INTEGER             NOT NULL REFERENCES restock_orders(id) ON DELETE CASCADE,
+    restock_order_id        INTEGER             NOT NULL REFERENCES restock_orders(id) ON DELETE CASCADE,
     product_id      INTEGER             NOT NULL REFERENCES products(id),
     quantity        INTEGER             NOT NULL CHECK (quantity > 0)
 );

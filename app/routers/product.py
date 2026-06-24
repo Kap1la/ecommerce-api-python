@@ -3,7 +3,7 @@
 from typing import Annotated
 
 import psycopg2
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Query, Depends, HTTPException, status
 
 from database import get_db
 from models.product import (
@@ -11,10 +11,7 @@ from models.product import (
     get_all_products,
     get_product_by_id,
     update_product,
-    decrement_stock,
-    increment_stock,
-    deactivate_product,
-    reactivate_product,
+    set_product_active_status,
 )
 from schemas import ProductCreate, ProductResponse, ProductUpdate
 
@@ -24,6 +21,7 @@ DbDep = Annotated[psycopg2.extensions.connection, Depends(get_db)]
 
 
 # Create
+# TODO add admin check
 @router.post("/", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
 def add_product(data: ProductCreate, db: DbDep):
     # Create a new product.
@@ -45,6 +43,7 @@ def get_product(product_id: int, db: DbDep):
     return product
 
 # Update
+# TODO add admin check
 @router.patch("/{product_id}", response_model=ProductResponse)
 def edit_product(product_id: int, data: ProductUpdate, db: DbDep):
     # (Partially) update a product.
@@ -53,24 +52,20 @@ def edit_product(product_id: int, data: ProductUpdate, db: DbDep):
         raise HTTPException(status_code=404, detail="Product not found.")
     return product
 
-@router.patch("/{product_id}/deactivate", status_code=status.HTTP_204_NO_CONTENT)
-def deactivate_product(product_id: int, db: DbDep):
-    # Deactivate a product
-    if not deactivate_product(db, product_id):
+@router.patch("/{product_id}/active", response_model=ProductResponse, status_code=status.HTTP_200_OK)
+def set_product_active(
+    product_id: int,
+    is_active: bool = Query(...),
+    force: bool = Query(default=False),
+    db=Depends(get_db),
+    admin=Depends(require_admin),
+):
+    try:
+        product = set_product_active_status(db, product_id, is_active, force)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc))
+
+    if product is None:
         raise HTTPException(status_code=404, detail="Product not found.")
 
-@router.patch("/{product_id}/reactivate", status_code=status.HTTP_204_NO_CONTENT)
-def reactivate_product(product_id: int, db: DbDep):
-    # Reactivate a product
-    if not reactivate_product(db, product_id):
-        raise HTTPException(status_code=404, detail="Product not found.")
-    
-"""
-@router.patch("/{product_id}/stock/{quantity}", response_model=ProductResponse)
-def stock_product(product_id: int, quantity: int, db: DbDep):
-    # Restock a product
-    product = increment_stock(db, product_id, quantity)
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found.")
     return product
-"""
