@@ -3,7 +3,7 @@ from typing import Any
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from schemas.product import ProductCreate, ProductUpdate
+from schemas import ProductCreate, ProductUpdate
 
 
 # Create

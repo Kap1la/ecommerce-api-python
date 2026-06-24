@@ -22,7 +22,11 @@ DbDep = Annotated[psycopg2.extensions.connection, Depends(get_db)]
 
 # Create
 @router.post("/", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
-def add_product(data: ProductCreate, db: DbDep, admin=Depends(require_admin),):
+def add_product(
+    data: ProductCreate, 
+    db: DbDep, 
+    admin=Depends(require_admin),
+):
     # Create a new product.
     return create_product(db, data)
 
@@ -43,7 +47,12 @@ def get_product(product_id: int, db: DbDep):
 
 # Update
 @router.patch("/{product_id}", response_model=ProductResponse)
-def edit_product(product_id: int, data: ProductUpdate, db: DbDep, admin=Depends(require_admin),):
+def edit_product(
+    product_id: int, 
+    data: ProductUpdate, 
+    db: DbDep, 
+    admin=Depends(require_admin),
+):
     # (Partially) update a product.
     product = update_product(db, product_id, data)
     if product is None:
