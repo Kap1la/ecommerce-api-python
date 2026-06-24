@@ -7,6 +7,10 @@ class Settings(BaseSettings):
     db_name: str = "ecommerce"
     db_user: str = "postgres"
     db_password: str
+    
+    secret_key: str
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
 
     class Config:
         env_file = ".env"
