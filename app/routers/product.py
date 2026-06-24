@@ -16,7 +16,7 @@ from models.product import (
     deactivate_product,
     reactivate_product,
 )
-from schemas.product import ProductCreate, ProductResponse, ProductUpdate
+from schemas import ProductCreate, ProductResponse, ProductUpdate
 
 router = APIRouter(prefix="/products", tags=["Products"])
 
@@ -65,6 +65,7 @@ def reactivate_product(product_id: int, db: DbDep):
     if not reactivate_product(db, product_id):
         raise HTTPException(status_code=404, detail="Product not found.")
     
+"""
 @router.patch("/{product_id}/stock/{quantity}", response_model=ProductResponse)
 def stock_product(product_id: int, quantity: int, db: DbDep):
     # Restock a product
@@ -72,3 +73,4 @@ def stock_product(product_id: int, quantity: int, db: DbDep):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found.")
     return product
+"""
