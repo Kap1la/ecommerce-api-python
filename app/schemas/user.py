@@ -19,7 +19,7 @@ class UserUpdate(BaseModel):
     email: str | None = Field(default=None, min_length=1, max_length=255)
 
 # only admins can update a user's role
-class UserAndRoleUpdate(BaseModel):
+class UserRoleUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     email: str | None = Field(default=None, min_length=1, max_length=255)
     role: UserRole | None = None

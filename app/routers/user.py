@@ -13,7 +13,7 @@ from models.user import (
     update_user,
     set_user_active_status,
 )
-from schemas import UserCreate, UserResponse, UserUpdate, UserAndRoleUpdate
+from schemas import UserCreate, UserResponse, UserUpdate, UserRoleUpdate
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -46,6 +46,7 @@ def get_user(user_id: int, db: DbDep):
     return user
 
 # Update
+# TODO use get_current_user
 @router.patch("/{user_id}", response_model=UserResponse)
 def edit_user(user_id: int, data: UserUpdate, db: DbDep,):
     # (Partially) update a user.
@@ -57,7 +58,7 @@ def edit_user(user_id: int, data: UserUpdate, db: DbDep,):
 @router.patch("/{user_id}/role", response_model=UserResponse)
 def edit_user_and_role(
     user_id: int, 
-    data: UserAndRoleUpdate, 
+    data: UserRoleUpdate, 
     db: DbDep, 
     admin=Depends(require_admin),
 ):

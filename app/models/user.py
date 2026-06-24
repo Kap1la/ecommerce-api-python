@@ -3,7 +3,7 @@ from typing import Any
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from schemas import UserCreate, UserUpdate, UserAndRoleUpdate
+from schemas import UserCreate, UserUpdate, UserRoleUpdate
 
 
 # Create
@@ -38,7 +38,7 @@ def get_user_by_id(
 
 # Update
 def update_user(
-    conn: psycopg2.extensions.connection, user_id: int, data: UserUpdate | UserAndRoleUpdate
+    conn: psycopg2.extensions.connection, user_id: int, data: UserUpdate | UserRoleUpdate
 ) -> dict | None:
     
     fields = data.model_dump(exclude_unset=True)
