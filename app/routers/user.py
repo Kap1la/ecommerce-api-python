@@ -32,13 +32,13 @@ def add_user(
 
 # Read
 @router.get("/", response_model=list[UserResponse])
-def list_users(db: DbDep):
+def list_users(db: DbDep, admin=Depends(require_admin),):
     # Return all users
     return get_all_users(db);
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, db: DbDep):
+def get_user(user_id: int, db: DbDep, admin=Depends(require_admin),):
     # Return a single user by ID
     user = get_user_by_id(db, user_id)
     if user is None:
