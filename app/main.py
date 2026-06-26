@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
  
 from app.database import close_pool, get_pool
 from app.routers.user import router as users_router
-from app.routers.purchase_order import router as purchase_orders_router
+from app.routers.sales_order import router as sales_orders_router
 from app.routers.restock_order import router as restock_orders_router
 from app.routers.product import router as products_router
 from app.routers.auth import router as auth_router
@@ -42,7 +42,7 @@ app = FastAPI(
 # Include routers
 app.include_router(products_router)
 app.include_router(users_router)
-app.include_router(purchase_orders_router)
+app.include_router(sales_orders_router)
 app.include_router(restock_orders_router)
 app.include_router(auth_router)
 

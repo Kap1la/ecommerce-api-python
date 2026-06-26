@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS products (
     created_at          TIMESTAMP           NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS purchase_orders (
+CREATE TABLE IF NOT EXISTS sales_orders (
     id                  SERIAL PRIMARY KEY,
     user_id                                 NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     status              VARCHAR(50)         NOT NULL DEFAULT 'pending'
@@ -34,9 +34,9 @@ CREATE TABLE IF NOT EXISTS purchase_orders (
     created_at          TIMESTAMP           NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS purchase_order_items (
+CREATE TABLE IF NOT EXISTS sales_order_items (
     id                  SERIAL PRIMARY KEY,
-    purchase_order_id   INTEGER             NOT NULL REFERENCES purchase_orders(id) ON DELETE CASCADE,
+    sales_order_id   INTEGER             NOT NULL REFERENCES sales_orders(id) ON DELETE CASCADE,
     product_id          INTEGER             NOT NULL REFERENCES products(id),
     quantity            INTEGER             NOT NULL CHECK (quantity > 0),
     unit_price          NUMERIC(10, 2)      NOT NULL REFERENCES products(price) ON DELETE CASCADE,

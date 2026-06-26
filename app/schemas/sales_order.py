@@ -11,25 +11,25 @@ class StatusesSettable(str, Enum):
     delivered = 'delivered'
     cancelled = 'cancelled'
 
-class PurchaseOrderCreate(BaseModel):
+class SalesOrderCreate(BaseModel):
     status: str = 'pending'
     total: Decimal = Field(..., ge=0, decimal_places=2)
 
-class PurchaseOrderItemCreate(BaseModel):
-    purchase_order_id: int = int
+class SalesOrderItemCreate(BaseModel):
+    sales_order_id: int = int
     product_id: int = int
     quantity: int = int
     unit_price: Decimal = Field(..., ge=0, decimal_places=2)
     discount_total: Decimal = Field(default=0, ge=0, decimal_places=2)
 
-class PurchaseOrderStatusUpdate(BaseModel):
+class SalesOrderStatusUpdate(BaseModel):
     status: StatusesSettable
 
-class PurchaseOrderItemUpdate(BaseModel):
+class SalesOrderItemUpdate(BaseModel):
     quantity: int | None = Field(default=None, ge=0)
     discount_total: Decimal | None = Field(default=None, ge=0, decimal_places=2)
 
-class PurchaseOrderResponse(BaseModel):
+class SalesOrderResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
@@ -38,11 +38,11 @@ class PurchaseOrderResponse(BaseModel):
     total: Decimal
     created_at: datetime
 
-class PurchaseOrderItemResponse(BaseModel):
+class SalesOrderItemResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    purchase_order_id: int
+    sales_order_id: int
     product_id: int
     quantity: int
     unit_price: Decimal

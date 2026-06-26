@@ -117,15 +117,15 @@ def set_product_active_status(
             if not is_active:
                 cur.execute(
                     """
-                    SELECT po.id as purchase_order_id, poi.id as item_id
-                    FROM purchase_order_items poi
-                    JOIN purchase_orders po ON po.id = poi.purchase_order_id
+                    SELECT po.id as sales_order_id, poi.id as item_id
+                    FROM sales_order_items poi
+                    JOIN sales_orders po ON po.id = poi.sales_order_id
                     WHERE poi.product_id = %s
                     AND po.status = 'pending';
                     """,
                     (product_id,)
                 )
-                blocking_purchase = cur.fetchall()
+                blocking_sales = cur.fetchall()
 
                 cur.execute(
                     """
@@ -141,13 +141,13 @@ def set_product_active_status(
 
                 # if blocking orders exist, and force is not selected,
                 # display blocking order ids and inform of force option
-                if (blocking_purchase or blocking_restock) and not force:
+                if (blocking_sales or blocking_restock) and not force:
                     
                     # create error message
                     error_msg = f"Product {product_id} is referenced by pending "
-                    if blocking_purchase:
-                        purchase_order_ids = list({row["purchase_order_id"] for row in blocking_purchase})
-                        error_msg += f"purchase orders: {purchase_order_ids}. "
+                    if blocking_sales:
+                        sales_order_ids = list({row["sales_order_id"] for row in blocking_sales})
+                        error_msg += f"sales orders: {sales_order_ids}. "
                     if blocking_restock:
                         restock_order_ids = list({row["restock_order_id"] for row in blocking_restock})
                         error_msg += f"restock orders: {restock_order_ids}. "
@@ -157,31 +157,31 @@ def set_product_active_status(
 
                 # if blocking orders and force enabled
                 # remove all order items referencing the product from the blocking orders
-                if (blocking_purchase or blocking_restock) and force:
-                    # process for purchase orders
-                    if blocking_purchase:
-                        item_ids = [row["item_id"] for row in blocking_purchase]
-                        order_ids = list({row["order_id"] for row in blocking_purchase})
+                if (blocking_sales or blocking_restock) and force:
+                    # process for sales orders
+                    if blocking_sales:
+                        item_ids = [row["item_id"] for row in blocking_sales]
+                        order_ids = list({row["order_id"] for row in blocking_sales})
 
-                        # strike out purchase order items for this product
+                        # strike out sales order items for this product
                         cur.execute(
                             """
-                            UPDATE purchase_order_items
+                            UPDATE sales_order_items
                             SET struck_out = TRUE
                             WHERE id = ANY(%s);
                             """,
-                            #"DELETE FROM purchase_order_items WHERE id = ANY(%s);",
+                            #"DELETE FROM sales_order_items WHERE id = ANY(%s);",
                             (item_ids)
                         )
-                        # cancel purchase orders that no longer have any associated valid purchase order items
+                        # cancel sales orders that no longer have any associated valid sales order items
                         cur.execute(
                             """
-                            UPDATE purchase_orders
+                            UPDATE sales_orders
                             SET status = 'cancelled'
                             WHERE id = ANY(%s)
                             AND NOT EXISTS (
-                                SELECT 1 FROM purchase_order_items
-                                WHERE purchase_order_id = purchase_orders.id
+                                SELECT 1 FROM sales_order_items
+                                WHERE sales_order_id = sales_orders.id
                                 AND struck_out = FALSE
                             );
                             """,

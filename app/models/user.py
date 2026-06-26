@@ -78,14 +78,14 @@ def set_user_active_status(
             if not is_active:
                 cur.execute(
                     """
-                    SELECT po.id as purchase_order_id
-                    FROM purchase_orders po
+                    SELECT po.id as sales_order_id
+                    FROM sales_orders po
                     WHERE po.user_id = %s
                     AND po.status = 'pending';
                     """,
                     (user_id,)
                 )
-                blocking_purchase = cur.fetchall()
+                blocking_sales = cur.fetchall()
 
                 cur.execute(
                     """
@@ -100,13 +100,13 @@ def set_user_active_status(
 
                 # if blocking orders exist, and force is not selected,
                 # display blocking order ids and inform of force option
-                if (blocking_purchase or blocking_restock) and not force:
+                if (blocking_sales or blocking_restock) and not force:
                     
                     # create error message
                     error_msg = f"user {user_id} is referenced by pending "
-                    if blocking_purchase:
-                        purchase_order_ids = list({row["purchase_order_id"] for row in blocking_purchase})
-                        error_msg += f"purchase orders: {purchase_order_ids}. "
+                    if blocking_sales:
+                        sales_order_ids = list({row["sales_order_id"] for row in blocking_sales})
+                        error_msg += f"sales orders: {sales_order_ids}. "
                     if blocking_restock:
                         restock_order_ids = list({row["restock_order_id"] for row in blocking_restock})
                         error_msg += f"restock orders: {restock_order_ids}. "
@@ -116,15 +116,15 @@ def set_user_active_status(
 
                 # if blocking orders and force enabled
                 # cancel all orders referencing the user
-                if (blocking_purchase or blocking_restock) and force:
-                    # process for purchase orders
-                    if blocking_purchase:
-                        order_ids = list({row["order_id"] for row in blocking_purchase})
+                if (blocking_sales or blocking_restock) and force:
+                    # process for sales orders
+                    if blocking_sales:
+                        order_ids = list({row["order_id"] for row in blocking_sales})
 
-                        # strike out purchase orders for this user
+                        # strike out sales orders for this user
                         cur.execute(
                             """
-                            UPDATE purchase_orders
+                            UPDATE sales_orders
                             SET status = 'cancelled'
                             WHERE id = ANY(%s);
                             """,

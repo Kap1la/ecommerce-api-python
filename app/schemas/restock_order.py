@@ -15,7 +15,7 @@ class RestockOrderCreate(BaseModel):
     status: str = 'pending'
 
 class RestockOrderItemCreate(BaseModel):
-    purchase_order_id: int = int
+    sales_order_id: int = int
     product_id: int = int
     quantity: int = int
 
@@ -37,7 +37,7 @@ class RestockOrderItemResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    purchase_order_id: int
+    sales_order_id: int
     product_id: int
     quantity: int
     struck_out: bool
