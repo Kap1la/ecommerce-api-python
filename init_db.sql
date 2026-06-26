@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS products (
 
 CREATE TABLE IF NOT EXISTS purchase_orders (
     id                  SERIAL PRIMARY KEY,
-    user_id                          NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id                                 NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     status              VARCHAR(50)         NOT NULL DEFAULT 'pending'
                             CHECK (status IN ('pending', 'confirmed', 'shipped', 'delivered', 'cancelled')),
     total               NUMERIC(10, 2)      NOT NULL DEFAULT 0.00,
