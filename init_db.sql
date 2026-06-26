@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS purchase_order_items (
     purchase_order_id   INTEGER             NOT NULL REFERENCES purchase_orders(id) ON DELETE CASCADE,
     product_id          INTEGER             NOT NULL REFERENCES products(id),
     quantity            INTEGER             NOT NULL CHECK (quantity > 0),
-    unit_price          NUMERIC(10, 2)      NOT NULL CHECK (unit_price >= 0),
+    unit_price          NUMERIC(10, 2)      NOT NULL REFERENCES products(price) ON DELETE CASCADE,
+    discount_total      NUMERIC(10, 2)      NOT NULL CHECK (discount_total >= 0),
     struck_out          BOOLEAN             NOT NULL DEFAULT FALSE
 );
 
