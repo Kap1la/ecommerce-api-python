@@ -6,6 +6,7 @@ import psycopg2
 from fastapi import APIRouter, Query, Depends, HTTPException, status
 
 from database import get_db
+from core.dependencies import require_admin
 from models.product import (
     create_product,
     get_all_products,
