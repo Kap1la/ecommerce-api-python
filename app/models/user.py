@@ -2,6 +2,7 @@ from typing import Any
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from psycopg2.errors import UniqueViolation
 
 from schemas import UserCreate, UserUpdate, UserRoleUpdate
 
@@ -10,18 +11,22 @@ from schemas import UserCreate, UserUpdate, UserRoleUpdate
 def create_user(
     conn: psycopg2.extensions.connection, data: UserCreate
 ) -> dict:
-    with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        cur.execute(
-            """
-            INSERT INTO users (name, email, role, is_active)
-            VALUES (%s, %s, %s, %s)
-            RETURNING *;
-            """,
-            (data.name, data.email, data.role, data.is_active),
-        )
-        row = cur.fetchone()
-        conn.commit()
-        return row
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                INSERT INTO users (name, email, role, is_active)
+                VALUES (%s, %s, %s, %s)
+                RETURNING *;
+                """,
+                (data.name, data.email, data.role, data.is_active),
+            )
+            row = cur.fetchone()
+            conn.commit()
+            return row
+    except UniqueViolation:
+        conn.rollback()
+        raise ValueError(f"Email '{data.email}' is already registered.")
 
 # Read
 def get_all_users(conn: psycopg2.extensions.connection) -> list[dict]:
@@ -34,6 +39,13 @@ def get_user_by_id(
 ) -> dict | None:
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("SELECT * FROM users WHERE id = %s;", (user_id))
+        return cur.fetchone()
+
+def get_user_by_email(
+    conn: psycopg2.extensions.connection, user_email: str
+) -> dict | None:
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute("SELECT * FROM users WHERE email = %s;", (user_email))
         return cur.fetchone()
 
 # Update

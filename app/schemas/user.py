@@ -16,12 +16,10 @@ class UserCreate(BaseModel):
 # customer should be able to update name, email, is_active by themselves, but not role
 class UserUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
-    email: str | None = Field(default=None, min_length=1, max_length=255)
 
 # only admins can update a user's role
 class UserRoleUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
-    email: str | None = Field(default=None, min_length=1, max_length=255)
     role: UserRole
 
 class UserResponse(BaseModel):
