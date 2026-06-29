@@ -10,7 +10,9 @@ from core.dependencies import require_admin
 from models.product import (
     create_product,
     get_all_products,
+    get_all_active_products,
     get_product_by_id,
+    get_active_product_by_id,
     update_product,
     set_product_active_status,
 )
@@ -35,11 +37,23 @@ def add_product(
 @router.get("/", response_model=list[ProductResponse])
 def list_products(db: DbDep):
     # Return all products
-    return get_all_products(db);
+    return get_all_active_products(db);
 
+@router.get("/all", response_model=list[ProductResponse])
+def list_products(db: DbDep, admin=Depends(require_admin)):
+    # Return all products
+    return get_all_products(db);
 
 @router.get("/{product_id}", response_model=ProductResponse)
 def get_product(product_id: int, db: DbDep):
+    # Return a single product by ID
+    product = get_active_product_by_id(db, product_id)
+    if product is None:
+        raise HTTPException(status_code=404, detail="Product not found.")
+    return product
+
+@router.get("/all/{product_id}", response_model=ProductResponse)
+def get_product(product_id: int, db: DbDep, admin=Depends(require_admin)):
     # Return a single product by ID
     product = get_product_by_id(db, product_id)
     if product is None:

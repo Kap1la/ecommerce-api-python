@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS sales_orders (
 
 CREATE TABLE IF NOT EXISTS sales_order_items (
     id                  SERIAL PRIMARY KEY,
-    sales_order_id   INTEGER             NOT NULL REFERENCES sales_orders(id) ON DELETE CASCADE,
+    sales_order_id      INTEGER             NOT NULL REFERENCES sales_orders(id) ON DELETE CASCADE,
     product_id          INTEGER             NOT NULL REFERENCES products(id),
     quantity            INTEGER             NOT NULL CHECK (quantity > 0),
     unit_price          NUMERIC(10, 2)      NOT NULL REFERENCES products(price) ON DELETE CASCADE,

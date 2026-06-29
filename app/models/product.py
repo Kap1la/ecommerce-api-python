@@ -28,12 +28,24 @@ def get_all_products(conn: psycopg2.extensions.connection) -> list[dict]:
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
         cur.execute("SELECT * FROM products ORDER BY id;")
         return cur.fetchall()
+    
+def get_all_active_products(conn: psycopg2.extensions.connection) -> list[dict]:
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute("SELECT * FROM products WHERE is_active = TRUE ORDER BY id;")
+        return cur.fetchall()
 
 def get_product_by_id(
     conn: psycopg2.extensions.connection, product_id: int
 ) -> dict | None:
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
-        cur.execute("SELECT * FROM products WHERE id = %s;", (product_id))
+        cur.execute("SELECT * FROM products WHERE id = %s;", (product_id,))
+        return cur.fetchone()
+
+def get_active_product_by_id(
+    conn: psycopg2.extensions.connection, product_id: int
+) -> dict | None:
+    with conn.cursor(cursor_factory=RealDictCursor) as cur:
+        cur.execute("SELECT * FROM products WHERE id = %s AND is_active = TRUE;", (product_id,))
         return cur.fetchone()
 
 # Update
@@ -54,6 +66,11 @@ def update_product(
             values,
         )
         row = cur.fetchone()
+
+        if row is None:
+            conn.rollback()
+            return None
+        
     conn.commit()
     return row
 
@@ -75,6 +92,7 @@ def decrement_stock(
             (quantity, product_id, quantity),
         )
         return cur.fetchone()
+        # don't commit here, this is a helper
 
 
 def increment_stock(
@@ -94,6 +112,7 @@ def increment_stock(
             (quantity, product_id),
         )
         return cur.fetchone()
+        # don't commit here, this is a helper
 
 
 # Rather than delete a product, it is better logically to deactivate it,
@@ -117,7 +136,7 @@ def set_product_active_status(
             if not is_active:
                 cur.execute(
                     """
-                    SELECT po.id as sales_order_id, poi.id as item_id
+                    SELECT po.id as sales_order_id, poi.id as s_o_item_id
                     FROM sales_order_items poi
                     JOIN sales_orders po ON po.id = poi.sales_order_id
                     WHERE poi.product_id = %s
@@ -129,7 +148,7 @@ def set_product_active_status(
 
                 cur.execute(
                     """
-                    SELECT ro.id as restock_order_id, roi.id as item_id
+                    SELECT ro.id as restock_order_id, roi.id as r_o_item_id
                     FROM restock_order_items roi
                     JOIN restock_orders ro ON ro.id = roi.restock_order_id
                     WHERE roi.product_id = %s
@@ -160,8 +179,8 @@ def set_product_active_status(
                 if (blocking_sales or blocking_restock) and force:
                     # process for sales orders
                     if blocking_sales:
-                        item_ids = [row["item_id"] for row in blocking_sales]
-                        order_ids = list({row["order_id"] for row in blocking_sales})
+                        item_ids = [row["s_o_item_id"] for row in blocking_sales]
+                        order_ids = list({row["sales_order_id"] for row in blocking_sales})
 
                         # strike out sales order items for this product
                         cur.execute(
@@ -171,7 +190,7 @@ def set_product_active_status(
                             WHERE id = ANY(%s);
                             """,
                             #"DELETE FROM sales_order_items WHERE id = ANY(%s);",
-                            (item_ids)
+                            (item_ids,)
                         )
                         # cancel sales orders that no longer have any associated valid sales order items
                         cur.execute(
@@ -185,13 +204,13 @@ def set_product_active_status(
                                 AND struck_out = FALSE
                             );
                             """,
-                            (order_ids)
+                            (order_ids,)
                         )
 
                     # process for restock orders
                     if blocking_restock:
-                        item_ids = [row["item_id"] for row in blocking_restock]
-                        order_ids = list({row["order_id"] for row in blocking_restock})
+                        item_ids = [row["r_o_item_id"] for row in blocking_restock]
+                        order_ids = list({row["restock_order_id"] for row in blocking_restock})
 
                         # strike out restock order items for this product
                         cur.execute(
@@ -201,7 +220,7 @@ def set_product_active_status(
                             WHERE id = ANY(%s);
                             """,
                             #"DELETE FROM restock_order_items WHERE id = ANY(%s);",
-                            (item_ids)
+                            (item_ids,)
                         )
                         # cancel restock orders that no longer have any associated valid restock order items
                         cur.execute(
@@ -215,7 +234,7 @@ def set_product_active_status(
                                 AND struck_out = FALSE
                             );
                             """,
-                            (order_ids)
+                            (order_ids,)
                         )
 
             cur.execute(
