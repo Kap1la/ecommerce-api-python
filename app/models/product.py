@@ -67,9 +67,9 @@ def update_product(
         )
         row = cur.fetchone()
 
-        if row is None:
-            conn.rollback()
-            return None
+    if row is None:
+        conn.rollback()
+        return None
         
     conn.commit()
     return row

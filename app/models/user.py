@@ -22,8 +22,8 @@ def create_user(
                 (data.name, data.email, data.role, data.is_active),
             )
             row = cur.fetchone()
-            conn.commit()
-            return row
+        conn.commit()
+        return row
     except UniqueViolation:
         conn.rollback()
         raise ValueError(f"Email '{data.email}' is already registered.")
@@ -140,7 +140,7 @@ def set_user_active_status(
                             SET status = 'cancelled'
                             WHERE id = ANY(%s);
                             """,
-                            (order_ids)
+                            (order_ids,)
                         )
 
                     # process for restock orders
@@ -154,7 +154,7 @@ def set_user_active_status(
                             SET status = 'cancelled'
                             WHERE id = ANY(%s);
                             """,
-                            (order_ids)
+                            (order_ids,)
                         )
 
             cur.execute(

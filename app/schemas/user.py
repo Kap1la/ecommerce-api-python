@@ -13,7 +13,7 @@ class UserCreate(BaseModel):
     role: UserRole
     is_active: bool
 
-# customer should be able to update name, email, is_active by themselves, but not role
+# customer should be able to update only name by themselves
 class UserUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
 
@@ -21,7 +21,7 @@ class UserUpdate(BaseModel):
 class UserRoleUpdate(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=255)
     role: UserRole
-
+ 
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

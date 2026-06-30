@@ -5,17 +5,12 @@ from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 
 class StatusesSettable(str, Enum):
-    pending = 'pending'
-    confirmed = 'confirmed'
     shipped = 'shipped'
     delivered = 'delivered'
     cancelled = 'cancelled'
 
-class RestockOrderCreate(BaseModel):
-    status: str = 'pending'
-
 class RestockOrderItemCreate(BaseModel):
-    sales_order_id: int = int
+    restock_order_id: int = int
     product_id: int = int
     quantity: int = int
 
@@ -24,6 +19,7 @@ class RestockOrderStatusUpdate(BaseModel):
 
 class RestockOrderItemUpdate(BaseModel):
     quantity: int | None = Field(default=None, ge=0)
+    struck_out: bool | None
 
 class RestockOrderResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -37,7 +33,7 @@ class RestockOrderItemResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    sales_order_id: int
+    restock_order_id: int
     product_id: int
     quantity: int
     struck_out: bool

@@ -5,15 +5,9 @@ from enum import Enum
 from pydantic import BaseModel, Field, ConfigDict
 
 class StatusesSettable(str, Enum):
-    pending = 'pending'
-    confirmed = 'confirmed'
     shipped = 'shipped'
     delivered = 'delivered'
-    cancelled = 'cancelled'
-
-class SalesOrderCreate(BaseModel):
-    status: str = 'pending'
-    total: Decimal = Field(..., ge=0, decimal_places=2)
+    #cancelled = 'cancelled'
 
 class SalesOrderItemCreate(BaseModel):
     sales_order_id: int = int
@@ -28,6 +22,7 @@ class SalesOrderStatusUpdate(BaseModel):
 class SalesOrderItemUpdate(BaseModel):
     quantity: int | None = Field(default=None, ge=0)
     discount_total: Decimal | None = Field(default=None, ge=0, decimal_places=2)
+    struck_out: bool | None
 
 class SalesOrderResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)

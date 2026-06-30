@@ -39,7 +39,11 @@ def list_users(db: DbDep, admin=Depends(require_admin),):
 
 
 @router.get("/{user_id}", response_model=UserResponse)
-def get_user(user_id: int, db: DbDep, admin=Depends(require_admin),):
+def get_user(user_id: int, db: DbDep, curr_user=Depends(get_current_user),):
+    
+    if (curr_user["id"] != user_id and curr_user["role"] != 'admin'):
+        raise HTTPException(status_code=403, detail="Insufficient authority.")
+    
     # Return a single user by ID
     user = get_user_by_id(db, user_id)
 
@@ -96,3 +100,7 @@ def set_user_active(
         raise HTTPException(status_code=404, detail="User not found.")
 
     return user
+
+# perhaps add way for customers to deactivate themselves
+# one request to request deactivation, which returns a confirmation token
+# sending the confirmation token back deactivates

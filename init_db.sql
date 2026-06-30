@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS sales_order_items (
     product_id          INTEGER             NOT NULL REFERENCES products(id),
     quantity            INTEGER             NOT NULL CHECK (quantity > 0),
     unit_price          NUMERIC(10, 2)      NOT NULL REFERENCES products(price) ON DELETE CASCADE,
-    discount_total      NUMERIC(10, 2)      NOT NULL CHECK (discount_total >= 0),
+    discount_total      NUMERIC(10, 2)      NOT NULL CHECK (discount_total >= 0), --will be subtracted, so $5 off will be stored as 5.00, not -5.00
     struck_out          BOOLEAN             NOT NULL DEFAULT FALSE
 );
 
